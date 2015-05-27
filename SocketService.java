@@ -27,12 +27,7 @@ public class SocketService extends Service {
     private static final String TAG = "SocketService";  
     
 	public String fxsl_addr = null;
-	public int fxsl_port = 0;
-	
-//	private Socket clientSocket = null;
-//	private InputStream inStream = null;
-//	private OutputStream outStream = null;
-	
+	public int fxsl_port = 0;	
     private MyBinder mBinder = new MyBinder();  
   
 
@@ -62,8 +57,15 @@ public class SocketService extends Service {
 //		}
         mBinder.heartbeatTimer.cancel();
         
-        //disconnect the socket
-        
+
+		if (mBinder.t_rec != null) {
+			mBinder.t_rec.interrupt();
+		}
+		
+		if (mBinder.t_send != null) {
+			mBinder.t_send.interrupt();
+		}	
+
         
         Log.d(TAG, "onDestroy() executed");  
     }  
@@ -149,12 +151,12 @@ public class SocketService extends Service {
 		Thread t_send = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				while (true) {
-
-					if (keydata == null) {
-
+				while (true) {  //TODO: 
+					if (keydata == null) {	
+						
 					} else {
 						byte[] msgBuffer = null;
+						Log.e(TAG,"I am in t_send");
 						try {
 							msgBuffer = keydata.getBytes("GB2312");
 						} catch (UnsupportedEncodingException e) {
@@ -165,9 +167,14 @@ public class SocketService extends Service {
 								Log.e(TAG, "Socket is lost");
 								return;
 							} else {
-								outStream.flush();
-								outStream = clientSocket.getOutputStream();
-								outStream.write(msgBuffer);
+								 if (clientSocket.isConnected()) {
+					                    if (!clientSocket.isOutputShutdown()) {
+											
+											outStream = clientSocket.getOutputStream();
+											outStream.write(msgBuffer);
+					                    }
+								 }
+
 							}
 
 						} catch (IOException e) {
@@ -259,7 +266,7 @@ public class SocketService extends Service {
     		if(clientSocket == null)
     			return true;
     	   try{  
-    		   clientSocket.sendUrgentData(0);
+    		   clientSocket.sendUrgentData(0x61);
     	    return false;  
     	   }catch(Exception se){  
     		   Log.e(TAG,"true");
@@ -273,8 +280,7 @@ public class SocketService extends Service {
     	//============================================================= 
 		public class heartbeatTask extends TimerTask {
 			
-			public void run() {				
-//				Log.e(TAG,"I am in timer");		
+			public void run() {					
 				if(isServerClose() || isClientClose()) {
 					connectflag = false;
 				} else {
