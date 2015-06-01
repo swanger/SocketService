@@ -133,27 +133,7 @@ public class SocketService extends Service {
             }
 
         });  
-   		
-    	//=============================================================
-    	// TODO:stop connect when timeout
-    	//=============================================================
-        Thread t_reconnect = new Thread(new Runnable() {
-            @Override  
-            public void run() {  
-                try {
-                	if(fxsl_addr !=null && !fxsl_addr.isEmpty() && fxsl_port != 0) {
-                		clientSocket = new Socket(fxsl_addr, fxsl_port);
-                	} else
-                		Log.e(TAG,"Please input addr and port first");
-    			} catch (UnknownHostException e) {
-    				e.printStackTrace();
-    			} catch (IOException e) {
-    				e.printStackTrace();
-    			}
-            }
-
-        });  
-  	  
+	  
     	private Boolean isClientClose() {
     		if(clientSocket == null)
     			return true;
@@ -195,6 +175,8 @@ public class SocketService extends Service {
 				}
 				
 				Log.e(TAG,""+connectflag);
+				//close socketService
+				
 			}
 			
 		}
@@ -227,15 +209,7 @@ public class SocketService extends Service {
 				}
 			};
         }
-  
-    	//=============================================================
-    	// 
-    	//=============================================================
-    	private void reconnect() {
-    		Log.e(TAG,"reconnect");
-    		t_reconnect.start();    		
-    	}
-      
+    
     	//=============================================================
     	// Send data to AP
     	//=============================================================  	        
