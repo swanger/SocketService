@@ -11,8 +11,6 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Timer;
-import java.util.TimerTask;
 import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Intent;
@@ -55,7 +53,6 @@ public class SocketService extends Service {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
-        mBinder.heartbeatTimer.cancel();
         
         Log.d(TAG, "onDestroy() executed");  
     }  
@@ -74,7 +71,7 @@ public class SocketService extends Service {
     	private Socket clientSocket = null;
     	private InputStream inStream = null;
     	private OutputStream outStream = null;
-    	private boolean connectflag = false;
+
     	//=============================================================
     	// new a thread to connect a socket
     	//=============================================================
@@ -160,30 +157,7 @@ public class SocketService extends Service {
     	    return true;  
     	   }  
     	} 
-    	
-    			
-    	//=============================================================
-    	// Setup a heartbeat timer
-    	//============================================================= 
-		public class heartbeatTask extends TimerTask {
-			
-			public void run() {					
-				if(isServerClose() || isClientClose()) {
-					connectflag = false;
-				} else {
-					connectflag = true;
-				}
-				
-				Log.e(TAG,""+connectflag);
-				//close socketService
-				
-			}
-			
-		}
-		TimerTask heartbeat = new heartbeatTask();	
-		Timer heartbeatTimer = new Timer();
-		
-       
+      
     	//=============================================================
     	// Setup socket connection
     	//=============================================================  	
@@ -194,9 +168,7 @@ public class SocketService extends Service {
             Log.d("TAG", "start socket connection");  
             fxsl_addr = addr;
             fxsl_port = port;
-            t_connect.start();
-			
-			heartbeatTimer.scheduleAtFixedRate(heartbeat, 5000, 1500);    
+            t_connect.start();			
 			
 			this.mHandler = new Handler() {
 				@Override
