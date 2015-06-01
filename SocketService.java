@@ -61,12 +61,7 @@ public class SocketService extends Service {
 		if (mBinder.t_rec != null) {
 			mBinder.t_rec.interrupt();
 		}
-		
-		if (mBinder.t_send != null) {
-			mBinder.t_send.interrupt();
-		}	
-
-        
+   
         Log.d(TAG, "onDestroy() executed");  
     }  
   
@@ -143,51 +138,7 @@ public class SocketService extends Service {
             }
 
         });  
-   
-    	//=============================================================
-    	// new a thread to send message
-    	//=============================================================
-		String keydata = null;
-		Thread t_send = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				while (true) {  //TODO: 
-					if (keydata == null) {	
-						
-					} else {
-						byte[] msgBuffer = null;
-						Log.e(TAG,"I am in t_send");
-						try {
-							msgBuffer = keydata.getBytes("GB2312");
-						} catch (UnsupportedEncodingException e) {
-							e.printStackTrace();
-						}
-						try {
-							if (clientSocket == null) {
-								Log.e(TAG, "Socket is lost");
-								return;
-							} else {
-								 if (clientSocket.isConnected()) {
-					                    if (!clientSocket.isOutputShutdown()) {
-											
-											outStream = clientSocket.getOutputStream();
-											outStream.write(msgBuffer);
-					                    }
-								 }
-
-							}
-
-						} catch (IOException e) {
-							e.printStackTrace();
-						}						
-						keydata = null;
-					}
-
-				}
-
-			}
-		});
-		
+   		
     	//=============================================================
     	// new a thread to receive data from inputstream
     	//=============================================================
@@ -306,7 +257,6 @@ public class SocketService extends Service {
             fxsl_addr = addr;
             fxsl_port = port;
             t_connect.start();
-			t_send.start(); 
 			
 			heartbeatTimer.scheduleAtFixedRate(heartbeat, 5000, 1500);    
 			
@@ -341,8 +291,33 @@ public class SocketService extends Service {
 //				mBinder.reconnect();	
 				Log.e(TAG,"no connection");
 				return;
-			}			
-			this.keydata = keydata;		        
+			}	
+	 
+			byte[] msgBuffer = null;
+
+			try {
+				msgBuffer = keydata.getBytes("GB2312");
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+			try {
+				if (clientSocket == null) {
+					Log.e(TAG, "Socket is lost");
+					return;
+				} else {
+					 if (clientSocket.isConnected()) {
+		                    if (!clientSocket.isOutputShutdown()) {
+								
+								outStream = clientSocket.getOutputStream();
+								outStream.write(msgBuffer);
+		                    }
+					 }
+
+				}
+
+			} catch (IOException e) {
+				e.printStackTrace();
+			}								
         }
 	}  
 }  
