@@ -57,11 +57,6 @@ public class SocketService extends Service {
 //		}
         mBinder.heartbeatTimer.cancel();
         
-
-		if (mBinder.t_rec != null) {
-			mBinder.t_rec.interrupt();
-		}
-   
         Log.d(TAG, "onDestroy() executed");  
     }  
   
@@ -139,45 +134,6 @@ public class SocketService extends Service {
 
         });  
    		
-    	//=============================================================
-    	// new a thread to receive data from inputstream
-    	//=============================================================
-    	Thread t_rec = new Thread(new Runnable() {
-    		@Override
-    		public void run() {    		 	
-
-    			try {
-    				inStream = clientSocket.getInputStream();
-    			} catch (IOException e2) {
-    				e2.printStackTrace();
-    			}
-
-    			while (true) {
-    				byte[] buf = new byte[512];
-    				String str = null;
-    			
-    				try {
-						inStream.read(buf);
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					} catch (IndexOutOfBoundsException e) {
-						Log.e(TAG,"IndexOutOfBoundsException");
-					}
-    		
-    				try {
-    					str = new String(buf, "GB2312").trim();
-    				} catch (UnsupportedEncodingException e) {
-    					e.printStackTrace();
-    					Log.e(TAG,"I am in UnsupportedEncodingException");
-    				}
-
-    				Message msg = new Message();
-    				msg.obj = str;
-    				mHandler.sendMessage(msg);
-    			}
-    		}
-    	});
-    	
     	//=============================================================
     	// TODO:stop connect when timeout
     	//=============================================================
