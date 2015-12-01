@@ -224,7 +224,7 @@ public class SocketService extends Service implements RecMsgHandler {
                 watchdog_value++;
                 try {
                     watchdog.sleep(1000);
-                    Log.e(TAG,watchdog_value+"");
+                    //Log.e(TAG,watchdog_value+"");
                 } catch (InterruptedException e) {
                     if(register_receive_flag == true) {
                         unregisterReceiver(msgReceiver);
@@ -371,10 +371,6 @@ public class SocketService extends Service implements RecMsgHandler {
 
                     return;
                 }
-
-
-
-                Log.e(TAG,"TEST HERE");
 
                 try {
                     inStream = clientSocket.getInputStream();
