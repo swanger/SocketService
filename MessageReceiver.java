@@ -1,5 +1,6 @@
-package com.fxsl.socket;
+package com.example.fxsl.socket;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -10,25 +11,45 @@ public class MessageReceiver extends BroadcastReceiver {
 
 	private static final String TAG = "MessageReceiver";
 	
-	public static ArrayList<RecMsgHandler> RecMsgList = new ArrayList<RecMsgHandler>();
+	public static ArrayList<RecMsgHandler> RecMsgList = new ArrayList<>();
 
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		if(intent.getAction().endsWith("com.fxsl.remoteuitest.MsgReceiver"))  {
+		if(intent.getAction().endsWith("com.example.fxsl.socket.MsgReceiver"))  {
 			
 			String msg = intent.getStringExtra("msg2client");
 			
 			for(int i = 0; i < RecMsgList.size(); i++) {
-				((RecMsgHandler)RecMsgList.get(i)).GetSocketMessage(msg);
-			}
-		}
+                try {
+                    (RecMsgList.get(i)).GetSocketMessage(msg);
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }catch (RuntimeException e) {
+                    Log.e(TAG,"runtime exception1");
+                }
+            }
+		} else if (intent.getAction().endsWith("com.example.fxsl.socket.MsgReceiver2")) {
+            String msg = intent.getStringExtra("datafromwcs");
+
+            for(int i = 0; i < RecMsgList.size(); i++) {
+                try {
+                    (RecMsgList.get(i)).UpdateUI(msg);
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                } catch (RuntimeException e) {
+                    Log.e(TAG,"runtime exception2");
+                }
+            }
+        }
+
 
 
 	}
 
 	public static abstract interface RecMsgHandler {
 
-		public abstract void GetSocketMessage(String msg);
+		public abstract void GetSocketMessage(String msg) throws UnsupportedEncodingException;
+        public abstract void UpdateUI(String msg) throws UnsupportedEncodingException;
 	}
 }
